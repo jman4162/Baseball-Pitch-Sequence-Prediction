@@ -1,5 +1,8 @@
 # Baseball Pitch Sequence Prediction
 
+[![Docs](https://img.shields.io/github/actions/workflow/status/jman4162/Baseball-Pitch-Sequence-Prediction/docs.yml?label=docs)](https://jman4162.github.io/Baseball-Pitch-Sequence-Prediction/)
+[![CI](https://img.shields.io/github/actions/workflow/status/jman4162/Baseball-Pitch-Sequence-Prediction/docs.yml?label=CI)](https://github.com/jman4162/Baseball-Pitch-Sequence-Prediction/actions)
+[![PyPI](https://img.shields.io/badge/pip%20install-pitch--sequencing-brightgreen)](https://github.com/jman4162/Baseball-Pitch-Sequence-Prediction)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C.svg)](https://pytorch.org/)
