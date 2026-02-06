@@ -1,0 +1,48 @@
+default_model: lstm
+feature_groups:
+  count_only:
+    - Balls
+    - Strikes
+  count_prev:
+    - Balls
+    - Strikes
+    - PreviousPitchType
+  count_pitcher:
+    - Balls
+    - Strikes
+    - PitcherType
+  game_context:
+    - PitchNumber
+    - AtBatNumber
+    - RunnersOn
+    - ScoreDiff
+  all:
+    - Balls
+    - Strikes
+    - PitcherType
+    - PitchNumber
+    - AtBatNumber
+    - RunnersOn
+    - ScoreDiff
+    - PreviousPitchType
+data_fractions:
+  - 0.1
+  - 0.25
+  - 0.5
+  - 0.75
+  - 1.0
+architecture_variants:
+  lstm:
+    num_layers: [1, 2, 3]
+    hidden_size: [32, 64, 128]
+  cnn1d:
+    num_conv_layers: [1, 2, 3]
+    base_filters: [32, 64, 128]
+  transformer:
+    num_layers: [1, 2, 4]
+    nhead: [2, 4, 8]
+hyperparameter_sensitivity:
+  learning_rate: [0.01, 0.005, 0.001, 0.0005, 0.0001]
+  dropout: [0.0, 0.1, 0.2, 0.3, 0.5]
+  window_size: [4, 6, 8, 10, 12]
+  batch_size: [64, 128, 256, 512]

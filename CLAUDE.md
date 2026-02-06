@@ -4,61 +4,122 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository explores baseball pitch sequence prediction using multiple ML approaches. All code lives in Jupyter notebooks (originally developed in Google Colab). There is no build system, test suite, or linting configuration — the project is notebook-driven.
+This repository explores baseball pitch sequence prediction using multiple ML approaches. It is structured as a Python package (`pitch_sequencing`) with 7 models, a benchmarking framework, ablation tooling, and MLflow experiment tracking. Original notebooks are preserved in `notebooks/`.
 
-## Running Notebooks
-
-The project uses a Python 3.9 venv at `./venv/`. To run notebooks locally:
+## Quick Start
 
 ```bash
 source venv/bin/activate
-jupyter notebook
+make install        # pip install -e ".[all,dev]"
+make data           # regenerate synthetic data
+make benchmark      # run all 7 models through 5-fold CV
+make test           # run pytest
+make mlflow         # launch MLflow UI at localhost:5000
 ```
 
-Notebooks were originally developed in Google Colab and can be opened there directly via GitHub.
+## Package Structure
 
-## Architecture
+```
+src/pitch_sequencing/
+├── __init__.py         # Public API (get_model, load_pitch_data, etc.)
+├── cli.py              # CLI entry points (pitch-generate, pitch-train, etc.)
+├── config.py           # YAML loader + dataclasses
+├── paths.py            # Config/data path resolution (importlib.resources)
+├── configs/            # Bundled YAML configs (shipped with pip install)
+│   ├── data.yaml
+│   ├── benchmark.yaml
+│   ├── ablation.yaml
+│   └── models/         # Per-model hyperparameters
+├── data/
+│   ├── loader.py       # load_pitch_data(), create_sequences()
+│   ├── preprocessing.py # encode, normalize, split
+│   └── simulator.py    # BaseballPitchSimulator + generate_dataset()
+├── models/
+│   ├── __init__.py     # MODEL_REGISTRY + get_model()
+│   ├── base.py         # BaseModel ABC (fit/predict/predict_proba)
+│   ├── baselines.py    # LogisticRegression, RandomForest
+│   ├── hmm_model.py    # HMM (hmmlearn)
+│   ├── autogluon_model.py # AutoGluon TabularPredictor
+│   ├── lstm.py         # LSTM (PyTorch)
+│   ├── cnn1d.py        # 1D-CNN (PyTorch)
+│   ├── transformer.py  # Transformer (PyTorch)
+│   └── torch_utils.py  # Shared training loop, dataset class
+└── evaluation/
+    ├── metrics.py      # compute_metrics(), bootstrap_ci(), t-test
+    ├── benchmark.py    # BenchmarkRunner (k-fold CV across all models)
+    ├── ablation.py     # AblationRunner (feature, arch, data, hyperparam)
+    └── visualization.py # Confusion matrix, bar charts, learning curves
+```
 
-The project follows a pipeline: **synthetic data generation → model training → evaluation**.
+## Models (7 total)
 
-### Notebooks (in logical order)
+All models implement `BaseModel` ABC with `fit()`, `predict()`, `predict_proba()`, `get_params()`.
 
-1. **`Baseball_Pitch_Sequence_Simulator.ipynb`** — Generates synthetic training data using enhanced Markov models with pitcher archetypes (power/finesse/slider_specialist/balanced), pitch sequence strategies, fatigue modeling, and game situation context. Outputs `data/baseball_pitch_data.csv` with columns: Balls, Strikes, PitchType, Outcome, PitcherType, PitchNumber, AtBatNumber, RunnersOn, ScoreDiff, PreviousPitchType.
+| Model | Type | Key Config |
+|-------|------|-----------|
+| Logistic Regression | tabular | C=1.0, balanced weights |
+| Random Forest | tabular | 200 trees, max_depth=15 |
+| HMM | sequence | 1-8 hidden states sweep |
+| AutoGluon | tabular | good_quality preset |
+| LSTM | sequence | 2-layer, hidden=64, window=8 |
+| 1D-CNN | sequence | 3 conv layers [64,128,64], k=3 |
+| Transformer | sequence | d_model=64, 4 heads, 2 layers |
 
-2. **`HMM_Pitch_Predictor.ipynb`** — Generates a second synthetic dataset (`data/synthetic_pitch_sequences.csv`) using an asymmetric transition matrix reflecting setup-pitch patterns. Trains a `CategoricalHMM` from `hmmlearn`, sweeping 1–8 hidden states and selecting by accuracy. Best model saved as `best_sequence_model.pkl`.
+`model_type = "tabular"`: expects (X_df, y) with tabular features.
+`model_type = "sequence"`: expects (X_3d, y) with shape (n, window_size, n_features).
 
-3. **`AutoGluon_Baseball_Pitch_Prediction.ipynb`** — Uses AutoGluon TabularPredictor to predict **PitchType** from all available features (Balls, Strikes, PitcherType, PitchNumber, AtBatNumber, RunnersOn, ScoreDiff, PreviousPitchType). Uses `good_quality` preset.
+## Configuration
 
-4. **`AutoGluon_Baseball_Pitch_Outcome_Prediction.ipynb`** — Uses AutoGluon TabularPredictor to predict **Outcome** (ball/strike/hit) from all available features including PitchType. Uses `good_quality` preset.
+Configs are bundled YAML files in `src/pitch_sequencing/configs/` (also mirrored in `configs/` for dev):
+- `data.yaml` — data paths, features, split ratios, window size
+- `benchmark.yaml` — which models, k-folds, metrics
+- `ablation.yaml` — ablation study configurations
+- `models/*.yaml` — per-model hyperparameters
 
-5. **`LSTM_Pitch_Predictor.ipynb`** — Uses a 2-layer LSTM neural network with sliding window (8 pitches) to predict the next PitchType from sequential context. Includes baseline comparisons (most frequent, previous pitch, random weighted).
+Path resolution uses `paths.py` (`get_default_config()`, `get_default_data_dir()`).
 
-### Datasets
+## CLI Commands
 
-- **`data/baseball_pitch_data.csv`** — Columns: `Balls, Strikes, PitchType, Outcome, PitcherType, PitchNumber, AtBatNumber, RunnersOn, ScoreDiff, PreviousPitchType`. ~384K rows of simulated game pitches with context. Generated by notebook 1.
-- **`data/synthetic_pitch_sequences.csv`** — 2,500 sequences of 100 pitches each (columns `Pitch_1` through `Pitch_100`). Generated by notebook 2 with asymmetric transition matrix.
+```bash
+pitch-generate [--num-games 3000] [--at-bats 35] [--output-dir ./data]
+pitch-train --model lstm [--config path/to/lstm.yaml]
+pitch-benchmark [--config path/to/benchmark.yaml]
+pitch-ablation --type feature|architecture|data|hyperparam [--model lstm]
+```
 
-### Key Dependencies
+Scripts in `scripts/` are thin wrappers calling `pitch_sequencing.cli`.
 
-- `autogluon` (TabularPredictor for AutoML)
-- `hmmlearn` (CategoricalHMM)
-- `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `torch`
+## Datasets
 
-### Simulator Features
+- **`data/baseball_pitch_data.csv`** — ~384K rows: Balls, Strikes, PitchType, Outcome, PitcherType, PitchNumber, AtBatNumber, RunnersOn, ScoreDiff, PreviousPitchType
+- **`data/synthetic_pitch_sequences.csv`** — 2,500 x 100 pitch sequences for HMM
+
+## Simulator Features
 
 - **Pitcher archetypes**: power (55% FB), finesse (25% FB, 30% CB), slider_specialist (40% SL), balanced (even)
-- **Sequence strategies**: 8 defined pitch patterns (e.g., FB-FB→CH, FB-SL→CB) that boost follow-up pitch probability by 15-25%
-- **Count-dependent outcomes**: Hit rate varies from 5-6% in pitcher's counts (0-2) to 19-23% in hitter's counts (3-0)
-- **Fatigue modeling**: After archetype-specific threshold (80-95 pitches), shift toward fastballs and more balls
-- **Game situation**: Runners on base, score differential affect pitch selection and aggression
+- **Sequence strategies**: 8 pitch patterns boosting follow-up probability by 15-25%
+- **Count-dependent outcomes**: Hit rate 5-6% in pitcher's counts to 19-23% in hitter's counts
+- **Fatigue modeling**: After threshold (80-95 pitches), shift toward fastballs and balls
+- **Game situation**: Runners on base, score differential affect selection
 
-### Known Limitations
+## Key Dependencies
 
-- The LSTM and AutoGluon models should be re-run after data regeneration to verify improved accuracy.
-- The README notes planned but not yet implemented: attention-based transformer model.
+- `torch`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`
+- `mlflow` (experiment tracking)
+- `pyyaml` (configuration)
+- Optional: `autogluon` (AutoML), `hmmlearn` (HMM)
 
 ## Pitch Types and Outcomes
 
 - **Pitch types**: Fastball, Slider, Curveball, Changeup
 - **Outcomes**: ball, strike, hit
-- **Count states**: (balls, strikes) where balls ∈ [0,3], strikes ∈ [0,2]
+- **Count states**: (balls, strikes) where balls in [0,3], strikes in [0,2]
+
+## Notebooks
+
+Original notebooks are in `notebooks/` and serve as demonstrations:
+1. `Baseball_Pitch_Sequence_Simulator.ipynb` — data generation
+2. `HMM_Pitch_Predictor.ipynb` — HMM training
+3. `AutoGluon_Baseball_Pitch_Prediction.ipynb` — pitch type prediction
+4. `AutoGluon_Baseball_Pitch_Outcome_Prediction.ipynb` — outcome prediction
+5. `LSTM_Pitch_Predictor.ipynb` — LSTM training

@@ -1,32 +1,143 @@
-# Baseball-Pitch-Sequence-Prediction
-This GitHub repository is dedicated to the development and training of a Transformer-based deep learning model for predicting the next pitch type in a baseball game, utilizing historical data on ball-strike counts and pitch sequences to incorporate transition probabilities for more accurate and context-aware predictions.
+# Baseball Pitch Sequence Prediction
 
-### Synthetic Baseball Pitch Sequence Simulation Using Markov Models
+A professional-grade Python package for baseball pitch sequence prediction using 7 ML models, with benchmarking, ablation studies, and MLflow experiment tracking.
 
-#### Overview
-This section of the project involves simulating realistic baseball pitch sequences using a Markov model approach. The simulation is based on the probabilistic transitions between different states, defined by the count of balls and strikes during an at-bat. The output is a synthetic dataset that includes detailed sequences of pitch types and outcomes (ball, strike, or hit).
+## Overview
 
-#### Description
-The simulation leverages Markov models to generate sequences where each state represents a specific ball-strike count, and transitions depend only on the current state. This method effectively captures the dynamics of a baseball game where the type and outcome of each pitch can influence subsequent pitches.
+This project generates synthetic baseball pitch data with realistic pitcher archetypes, pitch sequence strategies, fatigue modeling, and game situation context — then trains and compares multiple models for predicting the next pitch type.
 
-#### Key Features
-- **Transition Probabilities:** Defined for each possible count, detailing the likelihood of each type of pitch and its outcome.
-- **Pitch Simulation:** For each state, the model selects a pitch type based on defined probabilities and determines the result of the pitch.
-- **Count Updates:** Updates the ball and strike count based on the outcome of each pitch, respecting the rules of baseball regarding walks and strikeouts.
-- **At-Bat Simulation:** Integrates pitch simulation and count updating to simulate the sequence of pitches in a complete at-bat.
-- **Dataset Generation:** Multiple at-bats are simulated to produce a comprehensive dataset. This dataset includes columns for balls, strikes, pitch type, and pitch outcome, which can be used to train machine learning models for predictive analytics in sports.
+### Models
 
-#### Utility
-This simulation tool is invaluable for analysts and enthusiasts interested in understanding pitching strategies and game dynamics. It provides a foundation for developing predictive models that could forecast pitch types based on the game situation, enhancing strategic decisions in real-time. The generated dataset can be employed to train and evaluate machine learning models, facilitating deeper insights into the factors influencing pitcher behavior and outcomes in baseball.
+| Model | Type | Description |
+|-------|------|-------------|
+| **Logistic Regression** | Tabular | Baseline linear classifier |
+| **Random Forest** | Tabular | Ensemble of decision trees |
+| **HMM** | Sequence | Hidden Markov Model (hmmlearn) |
+| **AutoGluon** | Tabular | AutoML with model ensembling |
+| **LSTM** | Sequence | 2-layer LSTM neural network |
+| **1D-CNN** | Sequence | 3-layer convolutional network |
+| **Transformer** | Sequence | Self-attention encoder |
 
-#### Output
-The output of this simulation is a CSV file (`baseball_pitch_data.csv`) containing the synthetic dataset. Each entry in the dataset reflects an individual pitch within an at-bat, capturing the balls, strikes, type of pitch, and its outcome before the pitch was thrown.
+All models share a unified interface (`fit`, `predict`, `predict_proba`) and are benchmarked via k-fold cross-validation with bootstrap confidence intervals and paired statistical tests.
 
-### How to Use
-To run the simulation and generate the dataset, execute the provided Python scripts in the `scripts` folder. Ensure that Python and required libraries (`pandas`, `matplotlib`, `seaborn`) are installed. The scripts can be run from any standard Python environment.
+## Installation
 
-This dataset can be directly used for training predictive models or can be further analyzed to extract insights into pitching strategies under different game scenarios.
+```bash
+# From source (development)
+pip install -e ".[all,dev]"
 
-## Next steps
+# With all optional dependencies (AutoGluon + hmmlearn)
+pip install pitch-sequencing[all]
 
-Add prediction attention-based transformer, long short-term memory (LSTM), and hidden Markov model (HMM) sequence prediction models and compare performance.
+# After install, generate training data:
+pitch-generate --output-dir ./data
+```
+
+## Quick Start
+
+```bash
+# Set up environment
+python -m venv venv
+source venv/bin/activate
+make install            # pip install -e ".[all,dev]"
+
+# Generate synthetic data
+make data               # or: pitch-generate
+
+# Train a single model
+make train MODEL=lstm   # or: pitch-train --model lstm
+
+# Run full benchmark (all 7 models, 5-fold CV)
+make benchmark          # or: pitch-benchmark
+
+# Run ablation studies
+make ablation           # or: pitch-ablation --type feature --model lstm
+
+# Launch MLflow UI
+make mlflow             # opens at http://localhost:5000
+
+# Run tests
+make test
+```
+
+### CLI Commands
+
+After installation, these commands are available on your PATH:
+
+| Command | Description |
+|---------|-------------|
+| `pitch-generate` | Generate synthetic pitch datasets |
+| `pitch-train --model <name>` | Train a single model |
+| `pitch-benchmark` | Run full benchmark suite |
+| `pitch-ablation --type <type>` | Run ablation studies |
+
+## Project Structure
+
+```
+├── pyproject.toml              # PEP 621 packaging + CLI entry points
+├── Makefile                    # Common commands
+├── src/pitch_sequencing/       # Main package
+│   ├── __init__.py             # Public API (get_model, load_pitch_data, etc.)
+│   ├── cli.py                  # CLI entry points (pitch-generate, etc.)
+│   ├── config.py               # Config loading + dataclasses
+│   ├── paths.py                # Config/data path resolution
+│   ├── configs/                # Bundled YAML configs (ship with pip install)
+│   │   ├── data.yaml
+│   │   ├── benchmark.yaml
+│   │   ├── ablation.yaml
+│   │   └── models/             # Per-model hyperparameters
+│   ├── data/                   # Data loading, preprocessing, simulation
+│   ├── models/                 # All 7 model implementations
+│   └── evaluation/             # Metrics, benchmarking, ablation, visualization
+├── scripts/                    # Thin CLI wrappers (for make targets)
+├── configs/                    # Dev-time config copies (mirrored in package)
+├── notebooks/                  # Original Jupyter notebooks
+├── data/                       # Generated datasets (not packaged)
+├── experiments/                # MLflow artifacts (gitignored)
+└── tests/                      # pytest test suite
+```
+
+## Synthetic Data
+
+The simulator generates ~384K pitch rows per run with:
+
+- **Pitcher archetypes**: power, finesse, slider_specialist, balanced — each with distinct pitch distributions
+- **Sequence strategies**: 8 multi-pitch patterns (e.g., FB-FB→CH, SL-SL→FB) that create learnable sequential dependencies
+- **Count-dependent outcomes**: Hit rates from 5-6% (pitcher's counts) to 19-23% (hitter's counts)
+- **Fatigue modeling**: Pitch selection degrades after archetype-specific thresholds (80-95 pitches)
+- **Game situation**: Runners on base and score differential affect pitch selection
+
+### Dataset Columns
+
+`Balls, Strikes, PitchType, Outcome, PitcherType, PitchNumber, AtBatNumber, RunnersOn, ScoreDiff, PreviousPitchType`
+
+## Configuration
+
+All settings are YAML-driven:
+
+```yaml
+# configs/models/lstm.yaml
+model_type: lstm
+hidden_size: 64
+num_layers: 2
+dropout: 0.3
+epochs: 20
+learning_rate: 0.001
+batch_size: 256
+```
+
+## Evaluation
+
+- **Metrics**: Accuracy, balanced accuracy, macro precision/recall/F1, log loss, per-class metrics
+- **Benchmarking**: k-fold CV with bootstrap 95% confidence intervals
+- **Statistical tests**: Paired t-tests and Cohen's d effect sizes between models
+- **Ablation studies**: Feature importance, architecture variants, data scaling, hyperparameter sensitivity
+- **MLflow tracking**: All experiments logged with parameters, metrics, and artifacts
+
+## Notebooks
+
+Original exploratory notebooks are preserved in `notebooks/` and can be run via Jupyter or Google Colab. They now import from the `pitch_sequencing` package.
+
+## License
+
+See [LICENSE](LICENSE) file.
