@@ -1,0 +1,4 @@
+model_type: hmm
+min_components: 1
+max_components: 8
+n_iter: 100

@@ -1,0 +1,19 @@
+experiment_name: pitch_type_benchmark
+models:
+  - logistic_regression
+  - random_forest
+  - hmm
+  - autogluon
+  - lstm
+  - cnn1d
+  - transformer
+n_folds: 5
+metrics:
+  - accuracy
+  - balanced_accuracy
+  - macro_f1
+  - macro_precision
+  - macro_recall
+  - log_loss
+statistical_tests: true
+confidence_level: 0.95

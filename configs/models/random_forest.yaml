@@ -1,0 +1,5 @@
+model_type: random_forest
+n_estimators: 200
+max_depth: 15
+min_samples_split: 5
+class_weight: balanced

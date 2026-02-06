@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "Baseball Pitch Sequence Prediction"
+authors:
+  - family-names: Hodge
+    given-names: John
+version: 0.1.0
+date-released: "2026-01-01"
+license: MIT
+repository-code: "https://github.com/jman4162/Baseball-Pitch-Sequence-Prediction"
+url: "https://jman4162.github.io/Baseball-Pitch-Sequence-Prediction/"
+keywords:
+  - baseball
+  - pitch prediction
+  - machine learning
+  - deep learning
+  - PyTorch

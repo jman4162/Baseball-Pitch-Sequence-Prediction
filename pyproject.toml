@@ -37,11 +37,17 @@ dependencies = [
 autogluon = ["autogluon>=1.0"]
 hmm = ["hmmlearn>=0.3"]
 all = ["autogluon>=1.0", "hmmlearn>=0.3"]
-dev = ["pytest>=7.0", "build"]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.24",
+]
+dev = ["pytest>=7.0", "build", "pitch-sequencing[docs]"]
 
 [project.urls]
-Homepage = "https://github.com/johnhodge/Baseball-Pitch-Sequence-Prediction"
-Repository = "https://github.com/johnhodge/Baseball-Pitch-Sequence-Prediction"
+Homepage = "https://github.com/jman4162/Baseball-Pitch-Sequence-Prediction"
+Repository = "https://github.com/jman4162/Baseball-Pitch-Sequence-Prediction"
+Documentation = "https://jman4162.github.io/Baseball-Pitch-Sequence-Prediction/"
 
 [project.scripts]
 pitch-generate = "pitch_sequencing.cli:generate_main"

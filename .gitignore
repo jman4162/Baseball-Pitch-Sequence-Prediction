@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+experiments/
+mlruns/
+autogluon_*_models/
+*.pkl
+*.pt
+.ipynb_checkpoints/
+*.egg-info/
+dist/
+build/
+site/

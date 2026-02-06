@@ -143,8 +143,37 @@ batch_size: 256
 
 ## Notebooks
 
-Original exploratory notebooks are preserved in `notebooks/` and can be run via Jupyter or Google Colab. They now import from the `pitch_sequencing` package.
+Interactive tutorials are available in `notebooks/` — click to open directly in Google Colab:
+
+| Notebook | Description | Colab |
+|----------|-------------|-------|
+| [Baseball Pitch Sequence Simulator](notebooks/Baseball_Pitch_Sequence_Simulator.ipynb) | Data generation with pitcher archetypes, fatigue, and game context | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jman4162/Baseball-Pitch-Sequence-Prediction/blob/main/notebooks/Baseball_Pitch_Sequence_Simulator.ipynb) |
+| [HMM Pitch Predictor](notebooks/HMM_Pitch_Predictor.ipynb) | Hidden Markov Model training and evaluation | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jman4162/Baseball-Pitch-Sequence-Prediction/blob/main/notebooks/HMM_Pitch_Predictor.ipynb) |
+| [LSTM Pitch Predictor](notebooks/LSTM_Pitch_Predictor.ipynb) | 2-layer LSTM sequence model training | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jman4162/Baseball-Pitch-Sequence-Prediction/blob/main/notebooks/LSTM_Pitch_Predictor.ipynb) |
+| [AutoGluon Pitch Prediction](notebooks/AutoGluon_Baseball_Pitch_Prediction.ipynb) | AutoML pitch type prediction | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jman4162/Baseball-Pitch-Sequence-Prediction/blob/main/notebooks/AutoGluon_Baseball_Pitch_Prediction.ipynb) |
+| [AutoGluon Outcome Prediction](notebooks/AutoGluon_Baseball_Pitch_Outcome_Prediction.ipynb) | AutoML pitch outcome prediction | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jman4162/Baseball-Pitch-Sequence-Prediction/blob/main/notebooks/AutoGluon_Baseball_Pitch_Outcome_Prediction.ipynb) |
 
 ## License
 
 See [LICENSE](LICENSE) file.
+
+## Citation
+
+If you use this software in your research, please cite it:
+
+```bibtex
+@software{hodge2026pitchsequencing,
+  author       = {Hodge, John},
+  title        = {Baseball Pitch Sequence Prediction},
+  year         = {2026},
+  url          = {https://github.com/jman4162/Baseball-Pitch-Sequence-Prediction},
+  version      = {0.1.0},
+  license      = {MIT}
+}
+```
+
+Or use the [CITATION.cff](CITATION.cff) file for automatic citation via GitHub.
+
+## Documentation
+
+Full documentation is available at **[jman4162.github.io/Baseball-Pitch-Sequence-Prediction](https://jman4162.github.io/Baseball-Pitch-Sequence-Prediction/)**.

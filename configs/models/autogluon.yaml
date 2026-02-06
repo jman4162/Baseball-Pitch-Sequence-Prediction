@@ -1,0 +1,4 @@
+model_type: autogluon
+preset: good_quality
+time_limit: null
+models_dir: autogluon_pitchtype_models

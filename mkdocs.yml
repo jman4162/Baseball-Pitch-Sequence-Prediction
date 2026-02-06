@@ -1,0 +1,108 @@
+site_name: Baseball Pitch Sequence Prediction
+site_url: https://jman4162.github.io/Baseball-Pitch-Sequence-Prediction/
+site_description: A Python package for baseball pitch sequence prediction using 7 ML models
+site_author: John Hodge
+repo_url: https://github.com/jman4162/Baseball-Pitch-Sequence-Prediction
+repo_name: jman4162/Baseball-Pitch-Sequence-Prediction
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            heading_level: 2
+            docstring_style: google
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            allow_inspection: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+  - tables
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - User Guide:
+      - Data Pipeline: user-guide/data-pipeline.md
+      - Training Models: user-guide/training.md
+      - Benchmarking: user-guide/benchmarking.md
+      - Ablation Studies: user-guide/ablation.md
+      - MLflow Tracking: user-guide/mlflow.md
+  - Models:
+      - Overview: models/index.md
+      - Logistic Regression: models/logistic-regression.md
+      - Random Forest: models/random-forest.md
+      - HMM: models/hmm.md
+      - AutoGluon: models/autogluon.md
+      - LSTM: models/lstm.md
+      - 1D-CNN: models/cnn1d.md
+      - Transformer: models/transformer.md
+  - Configuration: configuration.md
+  - CLI Reference: cli-reference.md
+  - Notebooks: notebooks.md
+  - API Reference:
+      - Overview: api/index.md
+      - Config: api/config.md
+      - Paths: api/paths.md
+      - CLI: api/cli.md
+      - Data:
+          - Loader: api/data/loader.md
+          - Preprocessing: api/data/preprocessing.md
+          - Simulator: api/data/simulator.md
+      - Models:
+          - Registry: api/models/index.md
+          - BaseModel: api/models/base.md
+          - Baselines: api/models/baselines.md
+          - HMM: api/models/hmm.md
+          - AutoGluon: api/models/autogluon.md
+          - LSTM: api/models/lstm.md
+          - CNN1D: api/models/cnn1d.md
+          - Transformer: api/models/transformer.md
+          - Torch Utilities: api/models/torch_utils.md
+      - Evaluation:
+          - Metrics: api/evaluation/metrics.md
+          - Benchmark: api/evaluation/benchmark.md
+          - Ablation: api/evaluation/ablation.md
+          - Visualization: api/evaluation/visualization.md

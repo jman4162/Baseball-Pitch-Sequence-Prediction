@@ -1,0 +1,10 @@
+model_type: cnn1d
+filters:
+  - 64
+  - 128
+  - 64
+kernel_size: 3
+dropout: 0.3
+epochs: 30
+learning_rate: 0.001
+batch_size: 256
